@@ -24,5 +24,15 @@ namespace InventoryManagement
         {
             InitializeComponent();
         }
+
+        private void CommandExit_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CommandExit_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
     }
 }

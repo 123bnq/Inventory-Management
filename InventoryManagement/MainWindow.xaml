@@ -4,20 +4,31 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventoryManagement"
+        xmlns:specialClass="clr-namespace:InventoryManagement.SpecialClass"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Menu>
-            <MenuItem Header="_File">
-                <MenuItem Header="_Add..."/>
-                <MenuItem Header="_Edit..."/>
-                <MenuItem Header="_Delete..."/>
-                <MenuItem Header="_Clear"/>
-                <MenuItem Header="_Quit"/>
+        Title="{DynamicResource MainWindow.Title}" Height="450" Width="800">
+    <Window.CommandBindings>
+        <CommandBinding Command="specialClass:CustomCommands.Exit" CanExecute="CommandExit_CanExecute" Executed="CommandExit_Executed"/>
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{DynamicResource MainWindow.Menu.File}">
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Add}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Edit}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Delete}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Exit}" Command="specialClass:CustomCommands.Exit"/>
             </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem Header="_About"/>
+            <MenuItem Header="{DynamicResource MainWindow.Menu.Help}">
+                <MenuItem Header="{DynamicResource MainWindow.Menu.Help.About}"/>
             </MenuItem>
         </Menu>
-    </Grid>
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="LightBlue">
+            <StatusBarItem Content="bla"/>
+            <Separator/>
+            <StatusBarItem>akdfj</StatusBarItem>
+        </StatusBar>
+        <Grid>
+            
+        </Grid>
+    </DockPanel>
 </Window>

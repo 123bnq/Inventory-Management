@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:local="clr-namespace:InventoryManagement.Resources">
+    <!--#region Title -->
+    <system:String x:Key="MainWindow.Title">Bestandsverwaltung</system:String>
+    <!--#endregion-->
+    
+    <!--#region Menu.File-->
+    <system:String x:Key="MainWindow.Menu.File">_Datei</system:String>
+    <system:String x:Key="MainWindow.Menu.File.Add">Bestand _hinzufügen...</system:String>
+    <system:String x:Key="MainWindow.Menu.File.Edit">Bestand _bearbeiten...</system:String>
+    <system:String x:Key="MainWindow.Menu.File.Delete">Ent_fernen...</system:String>
+    <system:String x:Key="MainWindow.Menu.File.Exit">Be_enden</system:String>
+    <!--#endregion-->
+    
+    <!--#region Menu.Help-->
+    <system:String x:Key="MainWindow.Menu.Help">_Hilfe</system:String>
+    <system:String x:Key="MainWindow.Menu.Help.About">Über _uns</system:String>
+    <!--#endregion-->
+</ResourceDictionary>
