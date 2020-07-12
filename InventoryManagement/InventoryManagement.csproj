@@ -8,11 +8,20 @@
 
   <ItemGroup>
     <Folder Include="Database\" />
+    <Folder Include="Windows\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Database\Inventory.db">
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
+    <PackageReference Include="WPFCustomMessageBox" Version="1.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Database\Database.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Database\Inventory.db">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
