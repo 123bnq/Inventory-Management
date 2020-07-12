@@ -4,19 +4,18 @@ using InventoryManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.SQLite;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using WPFCustomMessageBox;
 
 namespace InventoryManagement
 {
@@ -28,6 +27,8 @@ namespace InventoryManagement
         Uri English = new Uri(".\\Resources\\Resources.xaml", UriKind.Relative);
         Uri German = new Uri(".\\Resources\\Resources.de.xaml", UriKind.Relative);
 
+        BackgroundWorker LoadInventories = new BackgroundWorker();
+
         public MainWindow()
         {
             SqlHelpers.GenerateNewDb();
@@ -36,38 +37,79 @@ namespace InventoryManagement
             MainWindowModel context = new MainWindowModel();
             this.DataContext = context;
 
-            context.InventoryList = new ObservableCollection<Inventory> { new Inventory { Number = 1, InDate = DateTime.UtcNow.ToString(), Object = "Test inventory", Price = 2.2, Repack = "" } };
+            context.InventoryList = new ObservableCollection<Inventory>();
             InventoryList.ItemsSource = context.InventoryList;
-            LoadInventoryAsync().Wait();
+
+            InventoryList.IsEnabled = false;
+
+            LoadInventories.WorkerReportsProgress = true;
+            LoadInventories.DoWork += LoadInventories_DoWork;
+            LoadInventories.ProgressChanged += LoadInventories_ProgressChanged;
+            LoadInventories.RunWorkerCompleted += LoadInventories_RunWorkerCompleted;
+            LoadInventories.RunWorkerAsync(NumberOfInventories());
+
+            CollectionView view = CollectionViewSource.GetDefaultView(InventoryList.ItemsSource) as CollectionView;
+            view.Filter = InventoryFilter;
+
+            //LoadInventoryAsync().Wait();
 
         }
 
-        private async Task LoadInventoryAsync()
+        private void LoadInventories_DoWork(object sender, DoWorkEventArgs e)
         {
+            var max = (int)e.Argument;
+            int item = 0;
+
             using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
             {
                 connection.Open();
+
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = "SELECT [Id], [Number], [Object], [Incoming Date], [Repack], [Price] FROM [Inventory]";
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        while (await reader.ReadAsync())
+                        while (reader.Read())
                         {
                             var inventory = SqlHelpers.ReadInventoryFromDb(reader);
-                            ((MainWindowModel)this.DataContext).InventoryList.Add(inventory);
+                            
+                            item++;
+                            var progressPercentage = Convert.ToInt32(((double)item / max) * 100);
+                            (sender as BackgroundWorker).ReportProgress(progressPercentage, inventory);
+                            Thread.Sleep(1);
                         }
                         reader.Close();
                     }
                 }
+                e.Result = e.Argument;
                 connection.Close();
             }
+        }
+
+        private void LoadInventories_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            context.Progress = e.ProgressPercentage;
+            context.Status = "Loading...";
+            if (e.UserState != null)
+            {
+                context.InventoryList.Add(e.UserState as Inventory);
+            }
+        }
+
+        private void LoadInventories_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            context.Status = "Finished";
+            context.InventoryCount = (int)e.Result;
+
+            InventoryList.IsEnabled = true;
         }
 
         private async Task GenerateInvetoriesToDbAsync()
         {
             List<Inventory> inventories = new List<Inventory>();
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 Inventory inventory = new Inventory { Number = i, InDate = DateTime.Now.ToString("d"), Object = "Test" + i.ToString(), Price = new Random().NextDouble(), Repack = "" };
                 inventories.Add(inventory);
@@ -93,7 +135,7 @@ namespace InventoryManagement
                                 cmd.Parameters.AddWithValue("Price", inv.Price);
                                 cmd.ExecuteNonQuery();
                                 Task.Delay(TimeSpan.FromTicks(5));
-                            } 
+                            }
                         }
                         transaction.Commit();
                     });
@@ -102,22 +144,54 @@ namespace InventoryManagement
             }
         }
 
-        private async Task<int> DeleteInventory(List<int> inventoryIds)
+        private async Task<int> DeleteInventory(IEnumerable<int> inventoryIds)
         {
             int result;
-            string ids = string.Join(", ", inventoryIds);
+            string ids = string.Join(",", inventoryIds);
             using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
             {
                 connection.Open();
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = "DELETE FROM Inventory WHERE Id in (@Ids)";
-                    cmd.Parameters.AddWithValue("Ids", ids);
+                    cmd.CommandText = $"DELETE FROM [Inventory] WHERE Id IN ({ids})";
                     result = await cmd.ExecuteNonQueryAsync();
                 }
             }
 
             return result;
+        }
+
+        private int NumberOfInventories()
+        {
+            int itemsCount;
+
+            using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
+            {
+                connection.Open();
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Count(*) FROM Inventory";
+                    var reader = cmd.ExecuteReader();
+                    reader.Read();
+                    int.TryParse(Convert.ToString(reader["Count(*)"]), out itemsCount);
+                }
+            }
+            return itemsCount;
+        }
+
+        private bool InventoryFilter(object item)
+        {
+            var context = this.DataContext as MainWindowModel;
+            if (string.IsNullOrWhiteSpace(context.SearchText))
+            {
+                return true;
+            }
+            else
+            {
+                bool number = (item as Inventory).Number.ToString().IndexOf(context.SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                bool inventoryName = (item as Inventory).Object.IndexOf(context.SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                return (number || inventoryName);
+            }
         }
 
         #region EventHandlers
@@ -141,6 +215,34 @@ namespace InventoryManagement
         private void CommandEdit_Executed(object sender, ExecutedRoutedEventArgs e)
         {
 
+        }
+
+        private async void CommandDelete_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (InventoryList.SelectedItems.Count > 0)
+            {
+                if (CustomMessageBox.ShowYesNo($"Do you want to delete {InventoryList.SelectedItems.Count} {(InventoryList.SelectedItems.Count > 1 ? "items" : "item")}?", "Warning", "Yes", "No", MessageBoxImage.Warning).Equals(MessageBoxResult.Yes))
+                {
+                    IEnumerable<int> ids;
+                    List<Inventory> inventories = new List<Inventory>();
+
+                    foreach (var inventory in InventoryList.SelectedItems)
+                    {
+                        inventories.Add(inventory as Inventory);
+                    }
+
+                    ids = inventories.Select(inventory => inventory.Id.Value);
+
+                    var res = await DeleteInventory(ids);
+                    if (res > 0)
+                    {
+                        foreach (var inventory in inventories)
+                        {
+                            (this.DataContext as MainWindowModel).InventoryList.Remove(inventory);
+                        }
+                    }
+                }
+            }
         }
 
         private void CommandEnglish_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -178,17 +280,26 @@ namespace InventoryManagement
                 InventoryList.SelectedItem = null;
             }
         }
-        
+
         private async void TestBtn_Click(object sender, RoutedEventArgs e)
         {
             await GenerateInvetoriesToDbAsync();
-            await LoadInventoryAsync();
+            (this.DataContext as MainWindowModel).InventoryList.Clear();
+            InventoryList.IsEnabled = false;
+            LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
 
         private void LoadData_Click(object sender, RoutedEventArgs e)
         {
-            LoadInventoryAsync().Wait();
+            (this.DataContext as MainWindowModel).InventoryList.Clear();
+            InventoryList.IsEnabled = false;
+            LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
         #endregion
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CollectionViewSource.GetDefaultView(InventoryList.ItemsSource).Refresh();
+        }
     }
 }

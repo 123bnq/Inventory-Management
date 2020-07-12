@@ -21,6 +21,8 @@ namespace InventoryManagement.Models
         private bool columnPriceVisible = true;
         private bool columnRepackVisible = true;
 
+        private ObservableCollection<Inventory> inventoryList;
+
         public string SearchText { get => searchText; set { if (value != searchText) { searchText = value; NotifyPropertyChanged(); } } }
         public string Status { get => status; set { if (value != status) { status = value; NotifyPropertyChanged(); } } }
         public int Progress { get => progress; set { if (value != progress) { progress = value; NotifyPropertyChanged(); } } }
@@ -34,7 +36,7 @@ namespace InventoryManagement.Models
 
 
 
-        public ObservableCollection<Inventory> InventoryList { get; set; }
+        public ObservableCollection<Inventory> InventoryList { get => inventoryList; set { inventoryList = value; NotifyPropertyChanged(); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

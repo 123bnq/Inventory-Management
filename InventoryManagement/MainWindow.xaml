@@ -21,6 +21,7 @@
 
         <CommandBinding Command="SpecialClass:CustomCommands.Exit" CanExecute="CommandExit_CanExecute" Executed="CommandExit_Executed"/>
         <CommandBinding Command="SpecialClass:CustomCommands.Edit" CanExecute="CommandEdit_CanExecute" Executed="CommandEdit_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.Delete" CanExecute="CommandEdit_CanExecute" Executed="CommandDelete_Executed"/>
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -40,11 +41,11 @@
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="LightBlue">
             <Separator/>
-            <StatusBarItem Content="Progress:"/>
+            <StatusBarItem Content="{Binding Status}"/>
             <Grid>
                 <ProgressBar Minimum="0" Maximum="100" Height="15" Width="200" Value="{Binding Progress}"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding Progress}"/>
+                    <TextBlock Text="{Binding Progress, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBlock Text="%"/>
                 </StackPanel>
             </Grid>
@@ -57,7 +58,7 @@
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Edit" Command="SpecialClass:CustomCommands.Edit"/>
-                        <MenuItem Header="Delete"/>
+                        <MenuItem Header="Delete" Command="SpecialClass:CustomCommands.Delete"/>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.Resources>
@@ -83,6 +84,11 @@
                                 <MenuItem Header="Repack" IsCheckable="True"/>
                             </ContextMenu>
                         </GridView.ColumnHeaderContextMenu>
+                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Id}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Id"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
                         <GridViewColumn Width="50" DisplayMemberBinding="{Binding Number}">
                             <GridViewColumn.Header>
                                 <GridViewColumnHeader Content="Number"></GridViewColumnHeader>
@@ -123,7 +129,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Text="Search:" Margin="5,0"/>
-                <TextBox Name="SearchBox" Grid.Column="1" Text="{Binding SearchText}"></TextBox>
+                <TextBox Name="SearchBox" Grid.Column="1" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" TextChanged="SearchBox_TextChanged"></TextBox>
                 <TextBlock Grid.Column="1" IsHitTestVisible="False" Text="Enter text to start searching" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0" Foreground="DarkGray">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
