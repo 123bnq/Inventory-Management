@@ -4,31 +4,141 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventoryManagement"
-        xmlns:specialClass="clr-namespace:InventoryManagement.SpecialClass"
+        xmlns:model="clr-namespace:InventoryManagement.Models"
+        xmlns:SpecialClass="clr-namespace:InventoryManagement.SpecialClass"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="{DynamicResource MainWindow.Title}" Height="450" Width="800">
+        Title="{DynamicResource MainWindow.Title}" Height="450" Width="800"
+        Background="WhiteSmoke">
+    <!--<Window.DataContext>
+        <model:MainWindowModel/>
+    </Window.DataContext>-->
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="specialClass:CustomCommands.Exit" CanExecute="CommandExit_CanExecute" Executed="CommandExit_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.English" CanExecute="CommandEnglish_CanExecute" Executed="CommandEnglish_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.German" CanExecute="CommandGerman_CanExecute" Executed="CommandGerman_Executed"/>
+
+        <CommandBinding Command="SpecialClass:CustomCommands.Exit" CanExecute="CommandExit_CanExecute" Executed="CommandExit_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.Edit" CanExecute="CommandEdit_CanExecute" Executed="CommandEdit_Executed"/>
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{DynamicResource MainWindow.Menu.File}">
                 <MenuItem Header="{DynamicResource MainWindow.Menu.File.Add}"/>
-                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Edit}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Edit}" Command="SpecialClass:CustomCommands.Edit"/>
                 <MenuItem Header="{DynamicResource MainWindow.Menu.File.Delete}"/>
-                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Exit}" Command="specialClass:CustomCommands.Exit"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Exit}" Command="SpecialClass:CustomCommands.Exit"/>
+            </MenuItem>
+            <MenuItem Header="Languages">
+                <MenuItem Header="English" Command="SpecialClass:CustomCommands.English"/>
+                <MenuItem Header="Deutsch" Command="SpecialClass:CustomCommands.German"/>
             </MenuItem>
             <MenuItem Header="{DynamicResource MainWindow.Menu.Help}">
                 <MenuItem Header="{DynamicResource MainWindow.Menu.Help.About}"/>
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="LightBlue">
-            <StatusBarItem Content="bla"/>
             <Separator/>
-            <StatusBarItem>akdfj</StatusBarItem>
+            <StatusBarItem Content="Progress:"/>
+            <Grid>
+                <ProgressBar Minimum="0" Maximum="100" Height="15" Width="200" Value="{Binding Progress}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding Progress}"/>
+                    <TextBlock Text="%"/>
+                </StackPanel>
+            </Grid>
+            <Separator/>
+            <StatusBarItem Content="Inventory count:"/>
+            <StatusBarItem Content="{Binding InventoryCount}"/>
         </StatusBar>
-        <Grid>
-            
-        </Grid>
+        <StackPanel>
+            <ListView Name="InventoryList" Height="250" Margin="10" MouseDown="InventoryList_MouseDown">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Edit" Command="SpecialClass:CustomCommands.Edit"/>
+                        <MenuItem Header="Delete"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.Resources>
+                    <!--<ContextMenu x:Key="ItemContextMenu">
+                        <MenuItem Header="Edit"/>
+                        <MenuItem Header="Delete"/>
+                    </ContextMenu>-->
+                    <Style TargetType="{x:Type GridViewColumnHeader}">
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    </Style>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridView.ColumnHeaderContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Number" IsCheckable="True"/>
+                                <MenuItem Header="Object" IsCheckable="True"/>
+                                <MenuItem Header="Income Date" IsCheckable="True"/>
+                                <MenuItem Header="Price" IsCheckable="True"/>
+                                <MenuItem Header="Repack" IsCheckable="True"/>
+                            </ContextMenu>
+                        </GridView.ColumnHeaderContextMenu>
+                        <GridViewColumn Width="50" DisplayMemberBinding="{Binding Number}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Number"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                        <GridViewColumn Width="200" DisplayMemberBinding="{Binding Object}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Object"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                        <GridViewColumn Width="120" DisplayMemberBinding="{Binding InDate}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Income date"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                        <GridViewColumn Width="75" DisplayMemberBinding="{Binding Price}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Price"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                        <GridViewColumn Width="75" DisplayMemberBinding="{Binding Repack}">
+                            <GridViewColumn.Header>
+                                <GridViewColumnHeader Content="Repack"></GridViewColumnHeader>
+                            </GridViewColumn.Header>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+                
+            </ListView>
+            <Grid Margin="40,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0" Text="Search:" Margin="5,0"/>
+                <TextBox Name="SearchBox" Grid.Column="1" Text="{Binding SearchText}"></TextBox>
+                <TextBlock Grid.Column="1" IsHitTestVisible="False" Text="Enter text to start searching" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0" Foreground="DarkGray">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Button Grid.Column="2" Name="TestBtn" Content="Add 100 Inventories" Click="TestBtn_Click"/>
+                <Button Grid.Column="2" Grid.Row="1" Name="LoadData" Content="Reload" Click="LoadData_Click"/>
+            </Grid>
+        </StackPanel>
     </DockPanel>
 </Window>

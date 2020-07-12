@@ -11,5 +11,16 @@ namespace InventoryManagement.SpecialClass
         {
             new KeyGesture(Key.Q, ModifierKeys.Control)
         });
+
+        public static readonly RoutedUICommand Edit = new RoutedUICommand("Edit", "Edit", typeof(CustomCommands));
+
+        public static readonly RoutedUICommand Delete = new RoutedUICommand("Delete", "Delete", typeof(CustomCommands), new InputGestureCollection()
+        {
+            new KeyGesture(Key.Delete)
+        });
+
+        public static readonly RoutedUICommand English = new RoutedUICommand("English", "English", typeof(CustomCommands));
+
+        public static readonly RoutedUICommand German = new RoutedUICommand("German", "German", typeof(CustomCommands));
     }
 }
