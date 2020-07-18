@@ -1,6 +1,7 @@
 ﻿using InventoryManagement.Entities;
 using InventoryManagement.Helpers;
 using InventoryManagement.Models;
+using InventoryManagement.Windows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -109,7 +110,7 @@ namespace InventoryManagement
         private async Task GenerateInvetoriesToDbAsync()
         {
             List<Inventory> inventories = new List<Inventory>();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 100; i++)
             {
                 Inventory inventory = new Inventory { Number = i, InDate = DateTime.Now.ToString("d"), Object = "Test" + i.ToString(), Price = new Random().NextDouble(), Repack = "" };
                 inventories.Add(inventory);
@@ -147,13 +148,13 @@ namespace InventoryManagement
         private async Task<int> DeleteInventory(IEnumerable<int> inventoryIds)
         {
             int result;
-            string ids = string.Join(",", inventoryIds);
             using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
             {
                 connection.Open();
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = $"DELETE FROM [Inventory] WHERE Id IN ({ids})";
+                    cmd.CommandText = $"DELETE FROM [Inventory] WHERE Id IN ({SqlHelpers.GenerateParamStringFromList(inventoryIds)})";
+                    cmd.Parameters.AddRange(SqlHelpers.GenerateSQLParamFromList(inventoryIds).ToArray());
                     result = await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -270,6 +271,22 @@ namespace InventoryManagement
         {
             e.CanExecute = true;
         }
+
+        private void CommandAdd_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = true;
+        }
+
+        private void CommandAdd_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var numbInventory = NumberOfInventories();
+            new AddInventory() { Owner = this }.ShowDialog();
+            if (numbInventory != NumberOfInventories())
+            {
+                (this.DataContext as MainWindowModel).InventoryList.Clear();
+                LoadInventories.RunWorkerAsync(NumberOfInventories()); 
+            }
+        }
         #endregion
 
         private void InventoryList_MouseDown(object sender, MouseButtonEventArgs e)
@@ -295,11 +312,12 @@ namespace InventoryManagement
             InventoryList.IsEnabled = false;
             LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
-        #endregion
-
+        
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             CollectionViewSource.GetDefaultView(InventoryList.ItemsSource).Refresh();
         }
+
+        #endregion
     }
 }

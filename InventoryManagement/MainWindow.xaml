@@ -22,13 +22,14 @@
         <CommandBinding Command="SpecialClass:CustomCommands.Exit" CanExecute="CommandExit_CanExecute" Executed="CommandExit_Executed"/>
         <CommandBinding Command="SpecialClass:CustomCommands.Edit" CanExecute="CommandEdit_CanExecute" Executed="CommandEdit_Executed"/>
         <CommandBinding Command="SpecialClass:CustomCommands.Delete" CanExecute="CommandEdit_CanExecute" Executed="CommandDelete_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.Add" CanExecute="CommandAdd_CanExecute" Executed="CommandAdd_Executed"/>
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{DynamicResource MainWindow.Menu.File}">
-                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Add}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Add}" Command="SpecialClass:CustomCommands.Add"/>
                 <MenuItem Header="{DynamicResource MainWindow.Menu.File.Edit}" Command="SpecialClass:CustomCommands.Edit"/>
-                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Delete}"/>
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Delete}" Command="SpecialClass:CustomCommands.Delete"/>
                 <MenuItem Header="{DynamicResource MainWindow.Menu.File.Exit}" Command="SpecialClass:CustomCommands.Exit"/>
             </MenuItem>
             <MenuItem Header="Languages">

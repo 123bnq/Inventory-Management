@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using InventoryManagement.Entities;
 using System.Data.Common;
+using System.Linq;
 
 namespace InventoryManagement.Helpers
 {
@@ -60,6 +61,33 @@ namespace InventoryManagement.Helpers
             inventory.Price = price;
 
             return inventory;
+        }
+
+        public static string GenerateParamStringFromList<T>(IEnumerable<T> list)
+        {
+            List<string> paramList = new List<string>();
+
+            for (int i = 0; i < list.Count(); i++)
+            {
+                paramList.Add($"@param{i}");
+            }
+            return string.Join(", ", paramList);
+        }
+
+        public static IEnumerable<SQLiteParameter> GenerateSQLParamFromList<T>(IEnumerable<T> list)
+        {
+            List<SQLiteParameter> parameters = new List<SQLiteParameter>();
+
+            for (int i = 0; i < list.Count(); i++)
+            {
+                parameters.Add(new SQLiteParameter
+                {
+                    ParameterName = $"@param{i}",
+                    Value = list.ElementAt(i)
+                });
+            }
+
+            return parameters;
         }
     }
 }

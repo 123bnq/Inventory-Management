@@ -14,6 +14,8 @@ namespace InventoryManagement.SpecialClass
 
         public static readonly RoutedUICommand Edit = new RoutedUICommand("Edit", "Edit", typeof(CustomCommands));
 
+        public static readonly RoutedUICommand Add = new RoutedUICommand("Add", "Add", typeof(CustomCommands));
+
         public static readonly RoutedUICommand Delete = new RoutedUICommand("Delete", "Delete", typeof(CustomCommands), new InputGestureCollection()
         {
             new KeyGesture(Key.Delete)
