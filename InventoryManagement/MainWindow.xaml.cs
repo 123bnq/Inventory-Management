@@ -215,7 +215,9 @@ namespace InventoryManagement
 
         private void CommandEdit_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            Inventory inventory = InventoryList.SelectedItem as Inventory;
 
+            new EditInventory(inventory).ShowDialog();
         }
 
         private async void CommandDelete_Executed(object sender, ExecutedRoutedEventArgs e)

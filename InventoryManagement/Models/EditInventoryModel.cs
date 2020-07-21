@@ -6,7 +6,7 @@ using System.Text;
 
 namespace InventoryManagement.Models
 {
-    class AddInventoryModel : INotifyPropertyChanged
+    class EditInventoryModel : INotifyPropertyChanged
     {
         private int number;
         private string objectName;
@@ -22,7 +22,7 @@ namespace InventoryManagement.Models
 
         public double Price { get => price; set { if (value != price) { price = value; NotifyPropertyChanged(); } } }
 
-        public string Repack { get => repack; set { if (value!= repack) { repack = value; NotifyPropertyChanged(); } } }
+        public string Repack { get => repack; set { if (value != repack) { repack = value; NotifyPropertyChanged(); } } }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

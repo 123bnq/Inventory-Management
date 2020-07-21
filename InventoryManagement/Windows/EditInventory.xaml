@@ -1,4 +1,4 @@
-﻿<Window x:Class="InventoryManagement.Windows.AddInventory"
+﻿<Window x:Class="InventoryManagement.Windows.EditInventory"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:InventoryManagement.Windows"
         xmlns:model="clr-namespace:InventoryManagement.Models"
         mc:Ignorable="d"
-        Title="Add Inventory" Height="300" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
+        Title="Edit..." Height="300" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
     <Window.DataContext>
         <model:AddInventoryModel/>
@@ -47,8 +47,8 @@
             <Label Grid.Row="5" Grid.Column="1" Content="{Binding InDate, StringFormat=Date: {0:DD/MM}}"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-            <Button Content="Add Inventory" Click="AddBtnClick" Width="100" Margin="5"/>
-            <Button Content="Clear" Width="75" Margin="5" Click="ClearBtnClick"/>
+            <Button Content="Save" Click="Button_Click_2" Width="75" Margin="5"/>
+            <Button Content="Clear" Width="75" Margin="5" Click="Button_Click_1"/>
             <Button Content="Cancel" Width="75" Margin="5" Click="CancelBtnClick"/>
         </StackPanel>
     </Grid>

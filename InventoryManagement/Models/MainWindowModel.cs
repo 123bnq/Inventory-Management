@@ -10,6 +10,7 @@ namespace InventoryManagement.Models
 {
     public class MainWindowModel : INotifyPropertyChanged
     {
+        #region private field
         private string searchText;
         private string status;
         private int progress;
@@ -23,6 +24,9 @@ namespace InventoryManagement.Models
 
         private ObservableCollection<Inventory> inventoryList;
 
+        #endregion
+
+        #region public properties
         public string SearchText { get => searchText; set { if (value != searchText) { searchText = value; NotifyPropertyChanged(); } } }
         public string Status { get => status; set { if (value != status) { status = value; NotifyPropertyChanged(); } } }
         public int Progress { get => progress; set { if (value != progress) { progress = value; NotifyPropertyChanged(); } } }
@@ -34,9 +38,9 @@ namespace InventoryManagement.Models
         public bool ColumnPriceVisible { get => columnPriceVisible; set { if (value != columnPriceVisible) { columnPriceVisible = value; NotifyPropertyChanged(); } } }
         public bool ColumnRepackVisible { get => columnRepackVisible; set { if (value != columnRepackVisible) { columnRepackVisible = value; NotifyPropertyChanged(); } } }
 
-
-
         public ObservableCollection<Inventory> InventoryList { get => inventoryList; set { inventoryList = value; NotifyPropertyChanged(); } }
+
+        #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
 
