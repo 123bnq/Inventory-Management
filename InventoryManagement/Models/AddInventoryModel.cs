@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -24,6 +25,13 @@ namespace InventoryManagement.Models
 
         public string Repack { get => repack; set { if (value!= repack) { repack = value; NotifyPropertyChanged(); } } }
 
+        public ObservableCollection<int> ObjectNumbers { get; set; }
+
+        public AddInventoryModel()
+        {
+            ObjectNumbers = new ObservableCollection<int>();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
@@ -33,7 +41,7 @@ namespace InventoryManagement.Models
 
         public bool IsNull()
         {
-            return Number == 0 && string.IsNullOrEmpty(ObjectName) && string.IsNullOrEmpty(InDate);
+            return Number == 0 || string.IsNullOrEmpty(ObjectName) || string.IsNullOrEmpty(InDate);
         }
     }
 }

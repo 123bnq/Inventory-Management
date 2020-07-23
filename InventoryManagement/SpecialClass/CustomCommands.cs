@@ -24,5 +24,8 @@ namespace InventoryManagement.SpecialClass
         public static readonly RoutedUICommand English = new RoutedUICommand("English", "English", typeof(CustomCommands));
 
         public static readonly RoutedUICommand German = new RoutedUICommand("German", "German", typeof(CustomCommands));
+
+
+        public static readonly RoutedUICommand AddInventoryBtn = new RoutedUICommand("AddInventoryBtn", "AddInventoryBtn", typeof(CustomCommands));
     }
 }

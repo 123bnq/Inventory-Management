@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InventoryManagement.Windows"
         xmlns:model="clr-namespace:InventoryManagement.Models"
+        xmlns:SpecialClass="clr-namespace:InventoryManagement.SpecialClass"
         mc:Ignorable="d"
-        Title="Add Inventory" Height="300" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
+        Title="Add Inventory" Height="250" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
     <Window.DataContext>
         <model:AddInventoryModel/>
     </Window.DataContext>
+    <Window.CommandBindings>
+        <CommandBinding Command="SpecialClass:CustomCommands.AddInventoryBtn" CanExecute="AddInventoryBtn_CanExecute" Executed="AddInventoryBtn_Executed"/>
+    </Window.CommandBindings>
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -44,10 +48,12 @@
             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Price}" Margin="0,0,0,5"/>
             <Label Content="Repack" Grid.Row="4"/>
             <TextBox Grid.Row="5" Text="{Binding Repack}" Margin="0,0,5,0"/>
-            <Label Grid.Row="5" Grid.Column="1" Content="{Binding InDate, StringFormat=Date: {0:DD/MM}}"/>
         </Grid>
+        <GroupBox Grid.Column="1" Header="Added items">
+            <ListBox Name="AddedList" Margin="5,0"/>
+        </GroupBox>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-            <Button Content="Add Inventory" Click="AddBtnClick" Width="100" Margin="5"/>
+            <Button Content="Add Inventory" Width="100" Margin="5" Command="SpecialClass:CustomCommands.AddInventoryBtn"/>
             <Button Content="Clear" Width="75" Margin="5" Click="ClearBtnClick"/>
             <Button Content="Cancel" Width="75" Margin="5" Click="CancelBtnClick"/>
         </StackPanel>

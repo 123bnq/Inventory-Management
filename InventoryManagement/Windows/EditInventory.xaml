@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:InventoryManagement.Windows"
         xmlns:model="clr-namespace:InventoryManagement.Models"
         mc:Ignorable="d"
-        Title="Edit..." Height="300" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
+        Title="Edit..." Height="250" Width="450" Background="WhiteSmoke" WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False">
     <Window.DataContext>
         <model:AddInventoryModel/>
@@ -44,11 +44,10 @@
             <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Price}" Margin="0,0,0,5"/>
             <Label Content="Repack" Grid.Row="4"/>
             <TextBox Grid.Row="5" Text="{Binding Repack}" Margin="0,0,5,0"/>
-            <Label Grid.Row="5" Grid.Column="1" Content="{Binding InDate, StringFormat=Date: {0:DD/MM}}"/>
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right">
-            <Button Content="Save" Click="Button_Click_2" Width="75" Margin="5"/>
-            <Button Content="Clear" Width="75" Margin="5" Click="Button_Click_1"/>
+            <Button Content="Save" Click="SaveBtnClick" Width="75" Margin="5"/>
+            <Button Content="Undo" Width="75" Margin="5" Click="UndoBtnClick"/>
             <Button Content="Cancel" Width="75" Margin="5" Click="CancelBtnClick"/>
         </StackPanel>
     </Grid>

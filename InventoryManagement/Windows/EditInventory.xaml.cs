@@ -1,7 +1,9 @@
 ﻿using InventoryManagement.Entities;
+using InventoryManagement.Helpers;
 using InventoryManagement.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,6 +23,7 @@ namespace InventoryManagement.Windows
     public partial class EditInventory : Window
     {
         Inventory OldInventory = new Inventory();
+        private int? InventoryId = null;
         public EditInventory(Inventory inventory)
         {
             InitializeComponent();
@@ -33,20 +36,62 @@ namespace InventoryManagement.Windows
 
         private void CancelBtnClick(object sender, RoutedEventArgs e)
         {
+            Inventory newInventory = GetInventoryFromContext();
+
+            if (OldInventory.Equals(newInventory))
+            {
+                this.Close();
+                return;
+            }
+
             var res = CustomMessageBox.ShowYesNo("Do you want to cancel the operation? All changes will not be saved.", "Warning", "Yes", "No", MessageBoxImage.Warning);
             if (res == MessageBoxResult.Yes)
             {
                 this.Close();
             }
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
 
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void UndoBtnClick(object sender, RoutedEventArgs e)
         {
+            PutInventoryToContext(OldInventory);
+        }
+
+        private async void SaveBtnClick(object sender, RoutedEventArgs e)
+        {
+            var newInventory = GetInventoryFromContext();
+
+            using (SQLiteConnection connection = new SQLiteConnection(SqlHelpers.ConnectionString))
+            {
+                connection.Open();
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE Inventory SET [Number]=@Number, [Object]=@Object, [Incoming Date]=@InDate, [Repack]=@Repack, [Price]=@Price WHERE Id=@Id";
+                    cmd.Parameters.AddWithValue("Number", newInventory.Number);
+                    cmd.Parameters.AddWithValue("Object", newInventory.Object);
+                    cmd.Parameters.AddWithValue("InDate", newInventory.InDate);
+                    cmd.Parameters.AddWithValue("Price", newInventory.Price);
+                    cmd.Parameters.AddWithValue("Repack", newInventory.Repack);
+
+                    cmd.Parameters.AddWithValue("Id", InventoryId.Value);
+
+                    var result = await cmd.ExecuteNonQueryAsync();
+                    if (result != -1)
+                    {
+                        OldInventory = GetInventoryFromContext();
+
+                        var res = CustomMessageBox.ShowOK("Inventory added successfully.", "Information", "OK", MessageBoxImage.Information);
+                        if (res == MessageBoxResult.OK || res == MessageBoxResult.None)
+                        {
+                            this.Close();
+                        }
+                        return;
+                    }
+
+                    CustomMessageBox.ShowOK("Something wrong while adding inventory. Please try again later.", "Error", "OK", MessageBoxImage.Error);
+                }
+            }
+
 
         }
 
@@ -71,6 +116,10 @@ namespace InventoryManagement.Windows
             context.InDate = inventory.InDate;
             context.Price = inventory.Price;
             context.Repack = inventory.Repack;
+            if(InventoryId == null)
+            {
+                InventoryId = inventory.Id;
+            }
         }
     }
 }

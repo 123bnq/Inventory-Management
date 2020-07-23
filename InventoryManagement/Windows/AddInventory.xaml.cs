@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -27,9 +29,61 @@ namespace InventoryManagement.Windows
 
             AddInventoryModel context = new AddInventoryModel();
             this.DataContext = context;
+
+            AddedList.ItemsSource = context.ObjectNumbers;
         }
 
-        private async void AddBtnClick(object sender, RoutedEventArgs e)
+        public static async Task<AddInventory> CreateAsync()
+        {
+            var window = new AddInventory();
+
+            await window.LoadObjectNumbers();
+            return window;
+        }
+
+        private void ClearBtnClick(object sender, RoutedEventArgs e)
+        {
+            AddInventoryModel context = this.DataContext as AddInventoryModel;
+            context.Number = 0;
+            context.ObjectName = context.InDate = context.Repack = string.Empty;
+            context.Price = 0;
+        }
+
+        private Inventory GetInventoryFromContext()
+        {
+            AddInventoryModel context = this.DataContext as AddInventoryModel;
+            return new Inventory
+            {
+                Number = context.Number,
+                Object = context.ObjectName,
+                InDate = context.InDate,
+                Price = context.Price,
+                Repack = context.Repack
+            };
+        }
+
+        private void ClearContext()
+        {
+            AddInventoryModel context = this.DataContext as AddInventoryModel;
+            context.Number = 0;
+            context.ObjectName = string.Empty;
+            context.InDate = string.Empty;
+            context.Price = 0;
+            context.Repack = string.Empty;
+        }
+
+        private void CancelBtnClick(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void AddInventoryBtn_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            AddInventoryModel context = this.DataContext as AddInventoryModel;
+            e.CanExecute = context.IsNull() == false;
+        }
+
+        private async void AddInventoryBtn_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             AddInventoryModel context = this.DataContext as AddInventoryModel;
             if (context.IsNull())
@@ -68,39 +122,37 @@ namespace InventoryManagement.Windows
                     if (res != -1)
                     {
                         CustomMessageBox.ShowOK("Inventory added successfully.", "Information", "OK", MessageBoxImage.Information);
+                        context.ObjectNumbers.Insert(0, inventory.Number);
+                        ClearContext();
                         return;
                     }
 
                     CustomMessageBox.ShowOK("Something wrong while adding inventory. Please try again later.", "Error", "OK", MessageBoxImage.Error);
                 }
             }
-
         }
 
-        private void ClearBtnClick(object sender, RoutedEventArgs e)
+        private async Task LoadObjectNumbers()
         {
             AddInventoryModel context = this.DataContext as AddInventoryModel;
-            context.Number = 0;
-            context.ObjectName = context.InDate = context.Repack = string.Empty;
-            context.Price = 0;
-        }
 
-        private Inventory GetInventoryFromContext()
-        {
-            AddInventoryModel context = this.DataContext as AddInventoryModel;
-            return new Inventory
+            using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
             {
-                Number = context.Number,
-                Object = context.ObjectName,
-                InDate = context.InDate,
-                Price = context.Price,
-                Repack = context.Repack
-            };
-        }
-
-        private void CancelBtnClick(object sender, RoutedEventArgs e)
-        {
-            this.Close();
+                connection.Open();
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Id,Number FROM Inventory ORDER BY Id DESC";
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        if (int.TryParse(Convert.ToString(reader["Number"]), out int objectNumber))
+                        {
+                            context.ObjectNumbers.Add(objectNumber);
+                        }
+                        await Task.Delay(1);
+                    }
+                }
+            }
         }
     }
 }

@@ -17,5 +17,22 @@ namespace InventoryManagement.Entities
         public double Price { get; set; }
 
         public string Repack { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            Inventory inventory;
+            try
+            {
+                inventory = obj as Inventory;
+                if (inventory == null)
+                    return false;
+
+                return this.Number == inventory.Number && this.Object.Equals(inventory.Object) && this.InDate.Equals(inventory.InDate) && this.Price == inventory.Price && this.Repack.Equals(inventory.Repack);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

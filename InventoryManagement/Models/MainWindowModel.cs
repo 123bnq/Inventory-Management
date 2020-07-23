@@ -42,6 +42,11 @@ namespace InventoryManagement.Models
 
         #endregion
 
+        public MainWindowModel()
+        {
+            InventoryList = new ObservableCollection<Inventory>();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")

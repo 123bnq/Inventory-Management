@@ -38,7 +38,6 @@ namespace InventoryManagement
             MainWindowModel context = new MainWindowModel();
             this.DataContext = context;
 
-            context.InventoryList = new ObservableCollection<Inventory>();
             InventoryList.ItemsSource = context.InventoryList;
 
             InventoryList.IsEnabled = false;
@@ -51,9 +50,6 @@ namespace InventoryManagement
 
             CollectionView view = CollectionViewSource.GetDefaultView(InventoryList.ItemsSource) as CollectionView;
             view.Filter = InventoryFilter;
-
-            //LoadInventoryAsync().Wait();
-
         }
 
         private void LoadInventories_DoWork(object sender, DoWorkEventArgs e)
@@ -73,7 +69,7 @@ namespace InventoryManagement
                         while (reader.Read())
                         {
                             var inventory = SqlHelpers.ReadInventoryFromDb(reader);
-                            
+
                             item++;
                             var progressPercentage = Convert.ToInt32(((double)item / max) * 100);
                             (sender as BackgroundWorker).ReportProgress(progressPercentage, inventory);
@@ -189,8 +185,15 @@ namespace InventoryManagement
             }
             else
             {
-                bool number = (item as Inventory).Number.ToString().IndexOf(context.SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
-                bool inventoryName = (item as Inventory).Object.IndexOf(context.SearchText, StringComparison.OrdinalIgnoreCase) >= 0;
+                var searchText = context.SearchText.Trim();
+                var texts = searchText.Split(" ");
+                bool number = false;
+                bool inventoryName = false;
+                foreach (var text in texts)
+                {
+                    number |= (item as Inventory).Number.ToString().IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0;
+                    inventoryName |= (item as Inventory).Object.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0;
+                }
                 return (number || inventoryName);
             }
         }
@@ -217,7 +220,11 @@ namespace InventoryManagement
         {
             Inventory inventory = InventoryList.SelectedItem as Inventory;
 
-            new EditInventory(inventory).ShowDialog();
+            new EditInventory(inventory) { Owner = this }.ShowDialog();
+
+            (this.DataContext as MainWindowModel).InventoryList.Clear();
+            InventoryList.IsEnabled = false;
+            LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
 
         private async void CommandDelete_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -279,14 +286,18 @@ namespace InventoryManagement
             e.CanExecute = true;
         }
 
-        private void CommandAdd_Executed(object sender, ExecutedRoutedEventArgs e)
+        private async void CommandAdd_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var numbInventory = NumberOfInventories();
-            new AddInventory() { Owner = this }.ShowDialog();
+            //new AddInventory() { Owner = this }.ShowDialog();
+            var addInventoryWindow = await AddInventory.CreateAsync();
+            addInventoryWindow.Owner = this;
+            addInventoryWindow.ShowDialog();
             if (numbInventory != NumberOfInventories())
             {
                 (this.DataContext as MainWindowModel).InventoryList.Clear();
-                LoadInventories.RunWorkerAsync(NumberOfInventories()); 
+                InventoryList.IsEnabled = false;
+                LoadInventories.RunWorkerAsync(NumberOfInventories());
             }
         }
         #endregion
@@ -314,12 +325,16 @@ namespace InventoryManagement
             InventoryList.IsEnabled = false;
             LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
-        
+
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             CollectionViewSource.GetDefaultView(InventoryList.ItemsSource).Refresh();
         }
 
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            new AboutWindow() { Owner = this }.ShowDialog();
+        }
         #endregion
     }
 }
