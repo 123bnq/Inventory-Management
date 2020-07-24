@@ -23,6 +23,11 @@
         <CommandBinding Command="SpecialClass:CustomCommands.Edit" CanExecute="CommandEdit_CanExecute" Executed="CommandEdit_Executed"/>
         <CommandBinding Command="SpecialClass:CustomCommands.Delete" CanExecute="CommandEdit_CanExecute" Executed="CommandDelete_Executed"/>
         <CommandBinding Command="SpecialClass:CustomCommands.Add" CanExecute="CommandAdd_CanExecute" Executed="CommandAdd_Executed"/>
+
+        <CommandBinding Command="SpecialClass:CustomCommands.AddToPrint" CanExecute="AddToPrint_CanExecute" Executed="AddToPrint_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.RemoveFromPrint" CanExecute="RemoveFromPrint_CanExecute" Executed="RemoveFromPrint_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.ClearPrintList" CanExecute="ClearPrintList_CanExecute" Executed="ClearPrintList_Executed"/>
+        <CommandBinding Command="SpecialClass:CustomCommands.PrintCheckList" CanExecute="ClearPrintList_CanExecute" Executed="PrintCheckList_Executed"/>
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -54,11 +59,23 @@
             <StatusBarItem Content="Inventory count:"/>
             <StatusBarItem Content="{Binding InventoryCount}"/>
         </StatusBar>
+
+        <GroupBox Header="Print List" DockPanel.Dock="Right" Margin="10" Width="150">
+            <StackPanel>
+                <ListBox Name="PrintList" Margin="5" Height="200" DisplayMemberPath="Number"/>
+                <Button Content="Add to Print" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.AddToPrint"/>
+                <Button Content="Remove" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.RemoveFromPrint"/>
+                <Button Content="Clear" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.ClearPrintList"/>
+                <Button Content="Print" Margin="5" HorizontalAlignment="Center" MinWidth="75" Command="SpecialClass:CustomCommands.PrintCheckList"/>
+            </StackPanel>
+        </GroupBox>
+        
         <StackPanel>
             <ListView Name="InventoryList" Height="250" Margin="10" MouseDown="InventoryList_MouseDown">
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Edit" Command="SpecialClass:CustomCommands.Edit"/>
+                        <MenuItem Header="Add to Print" Command="SpecialClass:CustomCommands.AddToPrint"/>
                         <MenuItem Header="Delete" Command="SpecialClass:CustomCommands.Delete"/>
                     </ContextMenu>
                 </ListView.ContextMenu>
@@ -117,7 +134,7 @@
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
-                
+
             </ListView>
             <Grid Margin="40,0">
                 <Grid.ColumnDefinitions>

@@ -40,11 +40,14 @@ namespace InventoryManagement.Models
 
         public ObservableCollection<Inventory> InventoryList { get => inventoryList; set { inventoryList = value; NotifyPropertyChanged(); } }
 
+        public ObservableCollection<Inventory> PrintList { get; set; }
+
         #endregion
 
         public MainWindowModel()
         {
             InventoryList = new ObservableCollection<Inventory>();
+            PrintList = new ObservableCollection<Inventory>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

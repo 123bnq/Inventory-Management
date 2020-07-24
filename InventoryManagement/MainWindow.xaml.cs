@@ -39,6 +39,7 @@ namespace InventoryManagement
             this.DataContext = context;
 
             InventoryList.ItemsSource = context.InventoryList;
+            PrintList.ItemsSource = context.PrintList;
 
             InventoryList.IsEnabled = false;
 
@@ -289,7 +290,6 @@ namespace InventoryManagement
         private async void CommandAdd_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var numbInventory = NumberOfInventories();
-            //new AddInventory() { Owner = this }.ShowDialog();
             var addInventoryWindow = await AddInventory.CreateAsync();
             addInventoryWindow.Owner = this;
             addInventoryWindow.ShowDialog();
@@ -299,6 +299,30 @@ namespace InventoryManagement
                 InventoryList.IsEnabled = false;
                 LoadInventories.RunWorkerAsync(NumberOfInventories());
             }
+        }
+
+        private void AddToPrint_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = InventoryList?.SelectedItems.Count > 0;
+        }
+
+        private void AddToPrint_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+
+            foreach (var inventory in InventoryList.SelectedItems)
+            {
+                if (context.PrintList.Contains(inventory) == false)
+                    context.PrintList.Add(inventory as Inventory);
+                else
+                {
+                    if (InventoryList.SelectedItems.Count < 2)
+                    {
+                        CustomMessageBox.ShowOK("Item has been added to the print list.", "Warning", "OK", MessageBoxImage.Warning);
+                    }
+                }
+            }
+            InventoryList.SelectedItems.Clear();
         }
         #endregion
 
@@ -336,5 +360,38 @@ namespace InventoryManagement
             new AboutWindow() { Owner = this }.ShowDialog();
         }
         #endregion
+
+        private void RemoveFromPrint_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = PrintList?.SelectedItems.Count > 0;
+        }
+
+        private void RemoveFromPrint_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            var selectedItems = PrintList.SelectedItems.Cast<Inventory>().ToList();
+            foreach (var inventory in selectedItems)
+            {
+                context.PrintList.Remove(inventory);
+            }
+        }
+
+        private void ClearPrintList_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            if (context != null && context.PrintList.Count > 0)
+                e.CanExecute = true;
+        }
+
+        private void ClearPrintList_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            context.PrintList.Clear();
+        }
+
+        private void PrintCheckList_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
     }
 }

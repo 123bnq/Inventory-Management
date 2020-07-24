@@ -25,6 +25,14 @@ namespace InventoryManagement.SpecialClass
 
         public static readonly RoutedUICommand German = new RoutedUICommand("German", "German", typeof(CustomCommands));
 
+        public static readonly RoutedUICommand AddToPrint = new RoutedUICommand("AddToPrint", "AddToPrint", typeof(CustomCommands));
+
+        public static readonly RoutedUICommand RemoveFromPrint = new RoutedUICommand("RemoveFromPrint", "RemoveFromPrint", typeof(CustomCommands));
+
+        public static readonly RoutedUICommand ClearPrintList = new RoutedUICommand("ClearPrintList", "ClearPrintList", typeof(CustomCommands));
+
+        public static readonly RoutedUICommand PrintCheckList = new RoutedUICommand("PrintCheckList", "PrintCheckList", typeof(CustomCommands));
+
 
         public static readonly RoutedUICommand AddInventoryBtn = new RoutedUICommand("AddInventoryBtn", "AddInventoryBtn", typeof(CustomCommands));
     }
