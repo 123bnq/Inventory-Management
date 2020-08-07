@@ -16,6 +16,7 @@ namespace InventoryManagement.Models
         private int progress;
         private int inventoryCount;
 
+        private bool columnIdVisible = true;
         private bool columnNumberVisible = true;
         private bool columnObjectVisible = true;
         private bool columnInDateVisible = true;
@@ -32,6 +33,7 @@ namespace InventoryManagement.Models
         public int Progress { get => progress; set { if (value != progress) { progress = value; NotifyPropertyChanged(); } } }
         public int InventoryCount { get => inventoryCount; set { if (value != inventoryCount) { inventoryCount = value; NotifyPropertyChanged(); } } }
 
+        public bool ColumnIdVisible { get => columnIdVisible; set { if (value != columnIdVisible) { columnIdVisible = value; NotifyPropertyChanged(); } } }
         public bool ColumnNumberVisible { get => columnNumberVisible; set { if (value != columnNumberVisible) { columnNumberVisible = value; NotifyPropertyChanged(); } } }
         public bool ColumnObjectVisible { get => columnObjectVisible; set { if (value != columnObjectVisible) { columnObjectVisible = value; NotifyPropertyChanged(); } } }
         public bool ColumnInDateVisible { get => columnInDateVisible; set { if (value != columnInDateVisible) { columnInDateVisible = value; NotifyPropertyChanged(); } } }

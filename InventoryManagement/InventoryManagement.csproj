@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="itext7" Version="7.1.12" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
     <PackageReference Include="WPFCustomMessageBox" Version="1.0.7" />
   </ItemGroup>

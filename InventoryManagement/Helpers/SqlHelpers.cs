@@ -55,7 +55,7 @@ namespace InventoryManagement.Helpers
             int.TryParse(Convert.ToString(reader["Number"]), out int number);
             inventory.Number = number;
             inventory.Object = Convert.ToString(reader["Object"]);
-            inventory.InDate = Convert.ToString(reader["Incoming Date"]);
+            inventory.InDate = Convert.ToDateTime(Convert.ToString(reader["Incoming Date"]));
             inventory.Repack = Convert.ToString(reader["Repack"]);
             double.TryParse(Convert.ToString(reader["Price"]), out double price);
             inventory.Price = price;

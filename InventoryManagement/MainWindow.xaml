@@ -9,9 +9,9 @@
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Title="{DynamicResource MainWindow.Title}" Height="450" Width="800"
         Background="WhiteSmoke">
-    <!--<Window.DataContext>
+    <Window.DataContext>
         <model:MainWindowModel/>
-    </Window.DataContext>-->
+    </Window.DataContext>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
@@ -62,14 +62,14 @@
 
         <GroupBox Header="Print List" DockPanel.Dock="Right" Margin="10" Width="150">
             <StackPanel>
-                <ListBox Name="PrintList" Margin="5" Height="200" DisplayMemberPath="Number"/>
+                <ListView Name="PrintList" Margin="5" Height="200" DisplayMemberPath="Number" ItemsSource="{Binding PrintList}"/>
                 <Button Content="Add to Print" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.AddToPrint"/>
                 <Button Content="Remove" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.RemoveFromPrint"/>
                 <Button Content="Clear" HorizontalAlignment="Center" MinWidth="75" Margin="5" Command="SpecialClass:CustomCommands.ClearPrintList"/>
                 <Button Content="Print" Margin="5" HorizontalAlignment="Center" MinWidth="75" Command="SpecialClass:CustomCommands.PrintCheckList"/>
             </StackPanel>
         </GroupBox>
-        
+
         <StackPanel>
             <ListView Name="InventoryList" Height="250" Margin="10" MouseDown="InventoryList_MouseDown">
                 <ListView.ContextMenu>
@@ -95,41 +95,41 @@
                     <GridView AllowsColumnReorder="False">
                         <GridView.ColumnHeaderContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Number" IsCheckable="True"/>
+                                <MenuItem Header="Number" IsCheckable="True" IsChecked="{Binding BookIdColumnVisible}" Click="ContextMenuCol_Click"/>
                                 <MenuItem Header="Object" IsCheckable="True"/>
                                 <MenuItem Header="Income Date" IsCheckable="True"/>
                                 <MenuItem Header="Price" IsCheckable="True"/>
                                 <MenuItem Header="Repack" IsCheckable="True"/>
                             </ContextMenu>
                         </GridView.ColumnHeaderContextMenu>
-                        <GridViewColumn Width="100" DisplayMemberBinding="{Binding Id}">
+                        <GridViewColumn Width="30" DisplayMemberBinding="{Binding Id}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Id"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Id" Tag="Id" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="50" DisplayMemberBinding="{Binding Number}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Number"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Number" Tag="Number" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="200" DisplayMemberBinding="{Binding Object}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Object"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Object" Tag="Object" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
-                        <GridViewColumn Width="120" DisplayMemberBinding="{Binding InDate}">
+                        <GridViewColumn Width="120" DisplayMemberBinding="{Binding InDate, StringFormat='dd.MM.yyyy'}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Income date"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Income date" Tag="InDate" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="75" DisplayMemberBinding="{Binding Price}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Price"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Price" Tag="Price" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                         <GridViewColumn Width="75" DisplayMemberBinding="{Binding Repack}">
                             <GridViewColumn.Header>
-                                <GridViewColumnHeader Content="Repack"></GridViewColumnHeader>
+                                <GridViewColumnHeader Content="Repack" Tag="Repack" Click="GridViewColumnHeader_Click"/>
                             </GridViewColumn.Header>
                         </GridViewColumn>
                     </GridView>

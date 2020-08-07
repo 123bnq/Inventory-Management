@@ -1,12 +1,18 @@
 ﻿using InventoryManagement.Entities;
 using InventoryManagement.Helpers;
 using InventoryManagement.Models;
+using InventoryManagement.SpecialClass;
 using InventoryManagement.Windows;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -25,6 +31,9 @@ namespace InventoryManagement
     /// </summary>
     public partial class MainWindow : Window
     {
+        private GridViewColumnHeader listViewSortCol = null;
+        private SortAdorner listViewSortAdorner = null;
+
         Uri English = new Uri(".\\Resources\\Resources.xaml", UriKind.Relative);
         Uri German = new Uri(".\\Resources\\Resources.de.xaml", UriKind.Relative);
 
@@ -109,7 +118,7 @@ namespace InventoryManagement
             List<Inventory> inventories = new List<Inventory>();
             for (int i = 0; i < 100; i++)
             {
-                Inventory inventory = new Inventory { Number = i, InDate = DateTime.Now.ToString("d"), Object = "Test" + i.ToString(), Price = new Random().NextDouble(), Repack = "" };
+                Inventory inventory = new Inventory { Number = i, InDate = DateTime.Now, Object = "Test" + i.ToString(), Price = new Random().NextDouble(), Repack = "" };
                 inventories.Add(inventory);
             }
 
@@ -359,6 +368,63 @@ namespace InventoryManagement
         {
             new AboutWindow() { Owner = this }.ShowDialog();
         }
+
+        private void GridViewColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SortAdorner.SortClick(sender, e, ref listViewSortCol, ref listViewSortAdorner, ref InventoryList);
+        }
+
+        private void ContextMenuCol_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            string header = (sender as MenuItem).Header.ToString();
+            string colName;
+            bool value;
+            using (var con = new SQLiteConnection(SqlHelpers.ConnectionString))
+            {
+                var updateCommand = con.CreateCommand();
+                switch (header)
+                {
+                    case "Id":
+                        colName = header;
+                        value = context.ColumnIdVisible;
+                        break;
+                    case "Number":
+                    case "Nummer":
+                        colName = "Number";
+                        value = context.ColumnNumberVisible;
+                        break;
+                    case "Object":
+                        colName = "Object";
+                        value = context.ColumnObjectVisible;
+                        break;
+                    case "InDate":
+                        colName = "Income Date";
+                        value = context.ColumnInDateVisible;
+                        break;
+                    case "Repack":
+                        colName = "Repack";
+                        value = context.ColumnRepackVisible;
+                        break;
+                    case "Price":
+                    case "Preis":
+                        colName = "Price";
+                        value = context.ColumnPriceVisible;
+                        break;
+                    default:
+                        colName = "Unknown";
+                        value = true;
+                        break;
+                }
+                int result = (value) ? 1 : 0;
+                updateCommand.CommandText = $"UPDATE ListViewColVisible SET Boolean=@Result WHERE ColName=@Column";
+                updateCommand.Parameters.AddWithValue("Result", result);
+                updateCommand.Parameters.AddWithValue("Column", colName);
+                updateCommand.ExecuteNonQuery();
+                con.Close();
+            }
+        }
+
         #endregion
 
         private void RemoveFromPrint_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -391,7 +457,90 @@ namespace InventoryManagement
 
         private void PrintCheckList_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            MainWindowModel context = this.DataContext as MainWindowModel;
+            string pdfPath;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.FileName = "List Inventories";
+            dialog.Filter = "PDF (*.pdf)|*.pdf";
+            dialog.InitialDirectory = AppContext.BaseDirectory;
+            if (dialog.ShowDialog(this) == true)
+            {
+                CreateInventoryPDFList(context.PrintList, dialog.FileName);
+            }
+        }
 
+        private void CreateInventoryPDFList(ICollection<Inventory> inventories, string pdfPath)
+        {
+            var pdfTitle = "Inventory List";
+            using (PdfWriter writer = new PdfWriter(pdfPath))
+            {
+                using (PdfDocument pdf = new PdfDocument(writer))
+                {
+                    Document document = new Document(pdf);
+                    Paragraph paragraph = new Paragraph(pdfTitle)
+                        .SetFontSize(20.0f)
+                        .SetBold()
+                        .SetTextAlignment(iText.Layout.Properties.TextAlignment.CENTER);
+
+                    float[] columnWidths = { 1, 3, 10, 0, 3 };
+                    Table table = new Table(columnWidths);
+                    table.SetWidth(iText.Layout.Properties.UnitValue.CreatePercentValue(100));
+
+                    //
+                    // add header cells
+                    Cell[] cells = new Cell[columnWidths.Length];
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        cells[i] = new Cell();
+                    }
+                    Paragraph[] paragraphs = new Paragraph[columnWidths.Length];
+                    for (int i = 0; i < paragraphs.Length; i++)
+                    {
+                        paragraphs[i] = new Paragraph().SetBold();
+                    }
+                    paragraphs[0].Add("ID");
+                    paragraphs[1].Add("Number");
+                    paragraphs[2].Add("Inventory");
+                    paragraphs[3].Add("Incoming date");
+                    paragraphs[4].Add("Price");
+
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        cells[i].Add(paragraphs[i]);
+                    }
+                    foreach (var cell in cells)
+                    {
+                        table.AddHeaderCell(cell);
+                    }
+
+                    //
+                    // add list content
+                    int counter = 0;
+                    foreach (var inventory in inventories)
+                    {
+                        for (int i = 0; i < cells.Length; i++)
+                        {
+                            cells[i] = new Cell();
+                        }
+                        cells[0].Add(new Paragraph((++counter).ToString()));
+                        cells[1].Add(new Paragraph(inventory.Number.ToString()));
+                        cells[2].Add(new Paragraph(inventory.Object));
+                        cells[3].Add(new Paragraph(inventory.InDate.ToShortDateString()));
+                        cells[4].Add(new Paragraph(inventory.Price.ToString()));
+                        foreach (var cell in cells)
+                        {
+                            table.AddCell(cell);
+                        }
+                    }
+
+                    document.Add(paragraph);
+                    document.Add(table);
+                }
+            }
+            Process proc = new Process();
+            proc.StartInfo.FileName = pdfPath;
+            proc.StartInfo.UseShellExecute = true;
+            proc.Start();
         }
     }
 }

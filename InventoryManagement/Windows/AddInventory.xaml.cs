@@ -29,6 +29,7 @@ namespace InventoryManagement.Windows
 
             AddInventoryModel context = new AddInventoryModel();
             this.DataContext = context;
+            context.InDate = DateTime.Now;
 
             AddedList.ItemsSource = context.ObjectNumbers;
         }
@@ -45,7 +46,8 @@ namespace InventoryManagement.Windows
         {
             AddInventoryModel context = this.DataContext as AddInventoryModel;
             context.Number = 0;
-            context.ObjectName = context.InDate = context.Repack = string.Empty;
+            context.ObjectName = context.Repack = string.Empty;
+            context.InDate = DateTime.Now;
             context.Price = 0;
         }
 
@@ -67,7 +69,7 @@ namespace InventoryManagement.Windows
             AddInventoryModel context = this.DataContext as AddInventoryModel;
             context.Number = 0;
             context.ObjectName = string.Empty;
-            context.InDate = string.Empty;
+            context.InDate = DateTime.Now;
             context.Price = 0;
             context.Repack = string.Empty;
         }

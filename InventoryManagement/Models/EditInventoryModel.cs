@@ -10,7 +10,7 @@ namespace InventoryManagement.Models
     {
         private int number;
         private string objectName;
-        private string inDate;
+        private DateTime inDate;
         private double price;
         private string repack;
 
@@ -18,7 +18,8 @@ namespace InventoryManagement.Models
 
         public string ObjectName { get => objectName; set { if (value != objectName) { objectName = value; NotifyPropertyChanged(); } } }
 
-        public string InDate { get => inDate; set { if (value != inDate) { if (string.IsNullOrEmpty(value)) inDate = value; else inDate = DateTime.Parse(value).Date.ToShortDateString(); NotifyPropertyChanged(); } } }
+        //public string InDate { get => inDate; set { if (value != inDate) { if (string.IsNullOrEmpty(value)) inDate = value; else inDate = DateTime.Parse(value).Date.ToShortDateString(); NotifyPropertyChanged(); } } }
+        public DateTime InDate { get => inDate; set { if (value != inDate) { inDate = value; NotifyPropertyChanged(); } } }
 
         public double Price { get => price; set { if (value != price) { price = value; NotifyPropertyChanged(); } } }
 
@@ -33,7 +34,7 @@ namespace InventoryManagement.Models
 
         public bool IsNull()
         {
-            return Number == 0 && string.IsNullOrEmpty(ObjectName) && string.IsNullOrEmpty(InDate);
+            return Number == 0 && string.IsNullOrEmpty(ObjectName) && InDate != null;
         }
     }
 }

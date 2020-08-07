@@ -12,7 +12,7 @@ namespace InventoryManagement.Entities
 
         public string Object { get; set; }
 
-        public string InDate { get; set; }
+        public DateTime InDate { get; set; }
 
         public double Price { get; set; }
 
