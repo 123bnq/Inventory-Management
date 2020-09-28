@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:system="clr-namespace:System;assembly=System.RunTime"
-                    xmlns:local="clr-namespace:InventoryManagement.Resources">
+                    xmlns:system="clr-namespace:System;assembly=System.RunTime">
     <!--#region Title -->
     <system:String x:Key="MainWindow.Title">Inventory Management</system:String>
     <!--#endregion-->
@@ -17,5 +16,10 @@
     <!--#region Menu.Help-->
     <system:String x:Key="MainWindow.Menu.Help">_Help</system:String>
     <system:String x:Key="MainWindow.Menu.Help.About">_About</system:String>
+    <!--#endregion-->
+    
+    <!--#region StatusBar -->
+    <system:String x:Key="MainWindow.StatusBar.Status.Processing">Processing...</system:String>
+    <system:String x:Key="MainWindow.StatusBar.Status.Finished">Finished</system:String>
     <!--#endregion-->
 </ResourceDictionary>
