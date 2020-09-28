@@ -41,8 +41,32 @@ namespace InventoryManagement
 
         public MainWindow()
         {
-            SqlHelpers.GenerateNewDb();
+            //SqlHelpers.GenerateNewDb();
             InitializeComponent();
+
+            //MainWindowModel context = new MainWindowModel();
+            //this.DataContext = context;
+
+            //InventoryList.ItemsSource = context.InventoryList;
+            //PrintList.ItemsSource = context.PrintList;
+
+            //InventoryList.IsEnabled = false;
+
+            //LoadInventories.WorkerReportsProgress = true;
+            //LoadInventories.DoWork += LoadInventories_DoWork;
+            //LoadInventories.ProgressChanged += LoadInventories_ProgressChanged;
+            //LoadInventories.RunWorkerCompleted += LoadInventories_RunWorkerCompleted;
+            //LoadInventories.RunWorkerAsync(NumberOfInventories());
+
+            //CollectionView view = CollectionViewSource.GetDefaultView(InventoryList.ItemsSource) as CollectionView;
+            //view.Filter = InventoryFilter;
+        }
+
+        protected async override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+
+            SqlHelpers.GenerateNewDb();
 
             MainWindowModel context = new MainWindowModel();
             this.DataContext = context;
@@ -52,11 +76,13 @@ namespace InventoryManagement
 
             InventoryList.IsEnabled = false;
 
-            LoadInventories.WorkerReportsProgress = true;
-            LoadInventories.DoWork += LoadInventories_DoWork;
-            LoadInventories.ProgressChanged += LoadInventories_ProgressChanged;
-            LoadInventories.RunWorkerCompleted += LoadInventories_RunWorkerCompleted;
-            LoadInventories.RunWorkerAsync(NumberOfInventories());
+            //LoadInventories.WorkerReportsProgress = true;
+            //LoadInventories.DoWork += LoadInventories_DoWork;
+            //LoadInventories.ProgressChanged += LoadInventories_ProgressChanged;
+            //LoadInventories.RunWorkerCompleted += LoadInventories_RunWorkerCompleted;
+            //LoadInventories.RunWorkerAsync(NumberOfInventories());
+            await LoadInventoryAsync(context);
+            InventoryList.IsEnabled = true;
 
             CollectionView view = CollectionViewSource.GetDefaultView(InventoryList.ItemsSource) as CollectionView;
             view.Filter = InventoryFilter;
@@ -113,42 +139,69 @@ namespace InventoryManagement
             InventoryList.IsEnabled = true;
         }
 
+        private async Task LoadInventoryAsync(MainWindowModel context)
+        {
+            int item = 0;
+            var amount = NumberOfInventories();
+            context.InventoryCount = amount;
+
+            using var connection = new SQLiteConnection(SqlHelpers.ConnectionString);
+            connection.Open();
+
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = "SELECT [Id], [Number], [Object], [Incoming Date], [Repack], [Price] FROM [Inventory]";
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    var inventory = SqlHelpers.ReadInventoryFromDb(reader);
+                    context.InventoryList.Add(inventory);
+                    item++;
+                    var progressPercentage = Convert.ToInt32(((double)item / amount) * 100);
+                    context.Progress = progressPercentage;
+                    context.Status = "Processing...";
+                    await Task.Delay(1000);
+                }
+                reader.Close();
+            }
+            connection.Close();
+            context.Status = "Finished";
+        }
+
         private async Task GenerateInvetoriesToDbAsync()
         {
             List<Inventory> inventories = new List<Inventory>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 5; i++)
             {
                 Inventory inventory = new Inventory { Number = i, InDate = DateTime.Now, Object = "Test" + i.ToString(), Price = new Random().NextDouble(), Repack = "" };
                 inventories.Add(inventory);
             }
 
-            using (var connection = new SQLiteConnection(SqlHelpers.ConnectionString))
+            using var connection = new SQLiteConnection(SqlHelpers.ConnectionString);
+            connection.Open();
+            using (var transaction = connection.BeginTransaction())
             {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
+                    foreach (var inv in inventories)
                     {
-                        foreach (var inv in inventories)
+                        using (var cmd = connection.CreateCommand())
                         {
-                            using (var cmd = connection.CreateCommand())
-                            {
-                                cmd.Transaction = transaction;
-                                cmd.CommandText = "INSERT INTO Inventory ([Number], [Object], [Incoming Date], [Repack], [Price]) VALUES (@Number, @Object, @InDate, @Repack, @Price)";
-                                cmd.Parameters.AddWithValue("Number", inv.Number);
-                                cmd.Parameters.AddWithValue("Object", inv.Object);
-                                cmd.Parameters.AddWithValue("InDate", inv.InDate);
-                                cmd.Parameters.AddWithValue("Repack", inv.Repack);
-                                cmd.Parameters.AddWithValue("Price", inv.Price);
-                                cmd.ExecuteNonQuery();
-                                Task.Delay(TimeSpan.FromTicks(5));
-                            }
+                            cmd.Transaction = transaction;
+                            cmd.CommandText = "INSERT INTO Inventory ([Number], [Object], [Incoming Date], [Repack], [Price]) VALUES (@Number, @Object, @InDate, @Repack, @Price)";
+                            cmd.Parameters.AddWithValue("Number", inv.Number);
+                            cmd.Parameters.AddWithValue("Object", inv.Object);
+                            cmd.Parameters.AddWithValue("InDate", inv.InDate);
+                            cmd.Parameters.AddWithValue("Repack", inv.Repack);
+                            cmd.Parameters.AddWithValue("Price", inv.Price);
+                            cmd.ExecuteNonQuery();
+                            Task.Delay(TimeSpan.FromTicks(5));
                         }
-                        transaction.Commit();
-                    });
-                }
-                connection.Close();
+                    }
+                    transaction.Commit();
+                });
             }
+            connection.Close();
         }
 
         private async Task<int> DeleteInventory(IEnumerable<int> inventoryIds)
@@ -352,11 +405,16 @@ namespace InventoryManagement
             LoadInventories.RunWorkerAsync(NumberOfInventories());
         }
 
-        private void LoadData_Click(object sender, RoutedEventArgs e)
+        private async void LoadData_Click(object sender, RoutedEventArgs e)
         {
-            (this.DataContext as MainWindowModel).InventoryList.Clear();
-            InventoryList.IsEnabled = false;
-            LoadInventories.RunWorkerAsync(NumberOfInventories());
+            var context = this.DataContext as MainWindowModel;
+            if (InventoryList.IsEnabled)
+            {
+                context.InventoryList.Clear();
+                InventoryList.IsEnabled = false;
+                await LoadInventoryAsync(context);
+                InventoryList.IsEnabled = true; 
+            }
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -364,7 +422,7 @@ namespace InventoryManagement
             CollectionViewSource.GetDefaultView(InventoryList.ItemsSource).Refresh();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void About_Click(object sender, RoutedEventArgs e)
         {
             new AboutWindow() { Owner = this }.ShowDialog();
         }
@@ -382,6 +440,7 @@ namespace InventoryManagement
             bool value;
             using (var con = new SQLiteConnection(SqlHelpers.ConnectionString))
             {
+                con.Open();
                 var updateCommand = con.CreateCommand();
                 switch (header)
                 {
@@ -420,7 +479,7 @@ namespace InventoryManagement
                 updateCommand.CommandText = $"UPDATE ListViewColVisible SET Boolean=@Result WHERE ColName=@Column";
                 updateCommand.Parameters.AddWithValue("Result", result);
                 updateCommand.Parameters.AddWithValue("Column", colName);
-                updateCommand.ExecuteNonQuery();
+                var res = updateCommand.ExecuteNonQuery();
                 con.Close();
             }
         }
@@ -541,6 +600,16 @@ namespace InventoryManagement
             proc.StartInfo.FileName = pdfPath;
             proc.StartInfo.UseShellExecute = true;
             proc.Start();
+        }
+
+        private void ResetDb_Click(object sender, RoutedEventArgs e)
+        {
+            var result = CustomMessageBox.ShowYesNo("An instance of the database will be backed up. Do you wish to continue?", "WARNING!!!", "Yes", "No");
+            if (result == MessageBoxResult.Yes)
+            {
+                SqlHelpers.GenerateNewDb(resetDb: true);
+
+            }
         }
     }
 }
