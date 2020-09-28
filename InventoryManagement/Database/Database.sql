@@ -20,5 +20,22 @@ CREATE TABLE [Inventory] (
 , [Price] real NULL
 , [Repack] text NULL
 );
+CREATE TABLE [ListViewColVisible] (
+  [Id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+, [ColName] text NULL
+, [Boolean] INTEGER NULL
+);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Id', 1);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Number', 1);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Object', 1);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Income Date', 1);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Price', 1);
+INSERT INTO [ListViewColVisible] ([ColName], [Boolean]) VALUES ('Repack', 1);
+
+CREATE TABLE [Language] (
+  [Id] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL
+, [Languages] text NULL
+, [Boolean] int NULL
+);
 COMMIT;
 

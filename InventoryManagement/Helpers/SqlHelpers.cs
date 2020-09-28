@@ -19,10 +19,18 @@ namespace InventoryManagement.Helpers
         public static string ConnectionString = new SQLiteConnectionStringBuilder { DataSource = Path.Combine(DatabaseFolder, DatabaseName) }.ToString();
 
         public static string ScriptDb = File.ReadAllText(Path.Combine(DatabaseFolderPath, "Database.sql"));
-        public static void GenerateNewDb()
+        public static void GenerateNewDb(bool resetDb = false)
         {
             try
             {
+                if (resetDb)
+                {
+                    if (File.Exists(DatabasePath))
+                    {
+                        File.Copy(DatabasePath, Path.Combine(DatabaseFolderPath, $"Backup-{DatabaseName}"));
+                        File.Delete(DatabasePath);
+                    }
+                }
                 if (File.Exists(DatabasePath) == false)
                 {
                     Directory.CreateDirectory(DatabaseFolderPath);
