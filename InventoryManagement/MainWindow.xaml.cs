@@ -84,6 +84,8 @@ namespace InventoryManagement
             await LoadInventoryAsync(context);
             InventoryList.IsEnabled = true;
 
+            await LoadColumnVisibility(context);
+
             CollectionView view = CollectionViewSource.GetDefaultView(InventoryList.ItemsSource) as CollectionView;
             view.Filter = InventoryFilter;
         }
@@ -432,7 +434,7 @@ namespace InventoryManagement
             SortAdorner.SortClick(sender, e, ref listViewSortCol, ref listViewSortAdorner, ref InventoryList);
         }
 
-        private void ContextMenuCol_Click(object sender, RoutedEventArgs e)
+        private async void ContextMenuCol_Click(object sender, RoutedEventArgs e)
         {
             MainWindowModel context = this.DataContext as MainWindowModel;
             string header = (sender as MenuItem).Header.ToString();
@@ -457,7 +459,7 @@ namespace InventoryManagement
                         colName = "Object";
                         value = context.ColumnObjectVisible;
                         break;
-                    case "InDate":
+                    case "Incoming Date":
                         colName = "Income Date";
                         value = context.ColumnInDateVisible;
                         break;
@@ -479,7 +481,52 @@ namespace InventoryManagement
                 updateCommand.CommandText = $"UPDATE ListViewColVisible SET Boolean=@Result WHERE ColName=@Column";
                 updateCommand.Parameters.AddWithValue("Result", result);
                 updateCommand.Parameters.AddWithValue("Column", colName);
-                var res = updateCommand.ExecuteNonQuery();
+                var res = await updateCommand.ExecuteNonQueryAsync();
+                con.Close();
+            }
+        }
+
+        private async Task LoadColumnVisibility(MainWindowModel context)
+        {
+            using (var con = new SQLiteConnection(SqlHelpers.ConnectionString))
+            {
+                con.Open();
+                using (var command = con.CreateCommand())
+                {
+                    command.CommandText = "SELECT [ColName], [Boolean] FROM [ListViewColVisible]";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var text = Convert.ToString(reader["ColName"]);
+                            int.TryParse(Convert.ToString(reader["Boolean"]), out int result);
+                            var isVisible = result == 1 ? true : false;
+                            switch (text)
+                            {
+                                case "Id":
+                                    context.ColumnIdVisible = isVisible;
+                                    break;
+                                case "Number":
+                                    context.ColumnNumberVisible = isVisible;
+                                    break;
+                                case "Object":
+                                    context.ColumnObjectVisible = isVisible;
+                                    break;
+                                case "Income Date":
+                                    context.ColumnInDateVisible = isVisible;
+                                    break;
+                                case "Price":
+                                    context.ColumnPriceVisible = isVisible;
+                                    break;
+                                case "Repack":
+                                    context.ColumnRepackVisible = isVisible;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
                 con.Close();
             }
         }

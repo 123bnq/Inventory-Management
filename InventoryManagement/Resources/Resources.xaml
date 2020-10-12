@@ -17,9 +17,18 @@
     <system:String x:Key="MainWindow.Menu.Help">_Help</system:String>
     <system:String x:Key="MainWindow.Menu.Help.About">_About</system:String>
     <!--#endregion-->
-    
+
     <!--#region StatusBar -->
     <system:String x:Key="MainWindow.StatusBar.Status.Processing">Processing...</system:String>
     <system:String x:Key="MainWindow.StatusBar.Status.Finished">Finished</system:String>
+    <!--#endregion-->
+
+    <!--#region InventoryList headers-->
+    <system:String x:Key="InventoryListHeader.Id">Id</system:String>
+    <system:String x:Key="InventoryListHeeder.Number">Number</system:String>
+    <system:String x:Key="InventoryListHeader.Object">Object</system:String>
+    <system:String x:Key="InventoryListHeader.InDate">Incoming Date</system:String>
+    <system:String x:Key="InventoryListHeader.Price">Price</system:String>
+    <system:String x:Key="InventoryListHeader.Repack">Repack</system:String>
     <!--#endregion-->
 </ResourceDictionary>

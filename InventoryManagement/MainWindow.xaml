@@ -109,11 +109,12 @@
                     <GridView AllowsColumnReorder="False">
                         <GridView.ColumnHeaderContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Number" IsCheckable="True" IsChecked="{Binding BookIdColumnVisible}" Click="ContextMenuCol_Click"/>
-                                <MenuItem Header="Object" IsCheckable="True"/>
-                                <MenuItem Header="Income Date" IsCheckable="True"/>
-                                <MenuItem Header="Price" IsCheckable="True"/>
-                                <MenuItem Header="Repack" IsCheckable="True"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeader.Id}" IsCheckable="True" IsChecked="{Binding ColumnIdVisible}" Click="ContextMenuCol_Click"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeeder.Number}" IsCheckable="True" IsChecked="{Binding ColumnNumberVisible}" Click="ContextMenuCol_Click"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeader.Object}" IsCheckable="True" IsChecked="{Binding ColumnObjectVisible}" Click="ContextMenuCol_Click"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeader.InDate}" IsCheckable="True" IsChecked="{Binding ColumnInDateVisible}" Click="ContextMenuCol_Click"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeader.Price}" IsCheckable="True" IsChecked="{Binding ColumnPriceVisible}" Click="ContextMenuCol_Click"/>
+                                <MenuItem Header="{DynamicResource InventoryListHeader.Repack}" IsCheckable="True" IsChecked="{Binding ColumnRepackVisible}" Click="ContextMenuCol_Click"/>
                             </ContextMenu>
                         </GridView.ColumnHeaderContextMenu>
                         <GridViewColumn Width="30" DisplayMemberBinding="{Binding Id}">

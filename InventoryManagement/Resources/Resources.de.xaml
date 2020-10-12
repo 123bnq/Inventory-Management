@@ -19,7 +19,16 @@
     <!--#endregion-->
 
     <!--#region StatusBar -->
-    <system:String x:Key="MainWindow.StatusBar.Status.Processing">In progress...</system:String>
+    <system:String x:Key="MainWindow.StatusBar.Status.Processing">In Bearbeitung...</system:String>
     <system:String x:Key="MainWindow.StatusBar.Status.Finished">Fertig</system:String>
+    <!--#endregion-->
+
+    <!--#region InventoryList headers-->
+    <system:String x:Key="InventoryListHeader.Id">Id</system:String>
+    <system:String x:Key="InventoryListHeeder.Number">Nummer</system:String>
+    <system:String x:Key="InventoryListHeader.Object">Objekt</system:String>
+    <system:String x:Key="InventoryListHeader.InDate">Eingangsdatum</system:String>
+    <system:String x:Key="InventoryListHeader.Price">Preis</system:String>
+    <system:String x:Key="InventoryListHeader.Repack">Neuauflage</system:String>
     <!--#endregion-->
 </ResourceDictionary>
